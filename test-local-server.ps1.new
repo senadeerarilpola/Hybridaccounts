@@ -1,0 +1,46 @@
+#!/usr/bin/env pwsh
+# Start SupiriAccounts Development Server
+# This script launches a simple HTTP server to test the PWA locally
+
+$port = 8000
+$rootDir = $PSScriptRoot
+
+# Display startup message
+Write-Host "Starting SupiriAccounts development server..." -ForegroundColor Cyan
+Write-Host "Press Ctrl+C to stop the server" -ForegroundColor Yellow
+Write-Host ""
+
+# Check if we're in the right directory
+if (-not (Test-Path "$rootDir\public\index.html")) {
+    Write-Host "Error: Could not find the index.html file." -ForegroundColor Red
+    Write-Host "Make sure you're running this script from the root of the SupiriAccounts project." -ForegroundColor Red
+    exit 1
+}
+
+# Check if Python is available
+$pythonCmd = $null
+if (Get-Command python -ErrorAction SilentlyContinue) {
+    $pythonCmd = "python"
+} elseif (Get-Command python3 -ErrorAction SilentlyContinue) {
+    $pythonCmd = "python3"
+}
+
+if ($null -eq $pythonCmd) {
+    Write-Host "Error: Python is not available. Please install Python to run the development server." -ForegroundColor Red
+    exit 1
+}
+
+try {
+    # Start Python HTTP server
+    Write-Host "Starting server on http://localhost:$port/" -ForegroundColor Green
+    Write-Host "Open your browser to this address to test SupiriAccounts" -ForegroundColor Green
+    
+    # Change to the project root directory
+    Set-Location -Path $rootDir
+    
+    # Start Python HTTP server
+    & $pythonCmd -m http.server $port
+} catch {
+    Write-Host "Error starting server: $_" -ForegroundColor Red
+    exit 1
+}
